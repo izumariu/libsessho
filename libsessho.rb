@@ -1,4 +1,4 @@
-# META_VERSION 1.2
+# META_VERSION 1.3
 
 def upd_check
 	require 'net/http'
