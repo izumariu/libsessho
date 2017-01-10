@@ -2,19 +2,29 @@
 
 def upd_check
 	require 'net/http'
-	onln_content = Net::HTTP.get(URI("https://raw.githubusercontent.com/sesshomariu/libsessho/master/libsessho.rb"))
-	onln_version = onln_content.match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
-	this_version = File.read(__FILE__).match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
-	upd_av = (onln_version>this_version)
-	return [upd_av, (upd_av ? onln_content : "")]
+	begin
+		onln_content = Net::HTTP.get(URI("https://raw.githubusercontent.com/sesshomariu/libsessho/master/libsessho.rb"))
+	rescue
+		return [false,""]
+	else
+		onln_version = onln_content.match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
+		this_version = File.read(__FILE__).match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
+		upd_av = (onln_version>this_version)
+		return [upd_av, (upd_av ? onln_content : "")]
+	end
 end
 
 $0==__FILE__&&( # not imported
 	upd_av, onln_cont = upd_check
-	upd_av ? puts("Update available.") : puts("No update available.")
+	upd_av ? puts("Update available. Updating...") : puts("No update available(or could not check repository).")
 	upd_av&&File.write(__FILE__,onln_content)
 	exit
 )
+
+_UPD_upd_av, _UPD_onln_cont = upd_check
+at_exit{_UPD_upd_av&&File.write(__FILE__,onln_content)}
+Signal.trap("INT"){exit} # ensure proper exit
+
 
 module Libsessho # error module / api module / dunno
 	class StringNotDivideableError<StandardError;end
