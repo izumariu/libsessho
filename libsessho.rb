@@ -1,20 +1,41 @@
-# META_VERSION 1.1
-$0==__FILE__&&( # not imported
-	require 'net/http'
-	onln_version = Net::HTTP.get(URI("https://gist.githubusercontent.com/sesshomariu/bea3f4403f0d4c671da0e7fed2f6a0dd/raw/005929716023ea119afab0fc8863a5fcb1ddefc6/libsessho.rb")).match(/META_VERSION \d+\.\d+/).to_s.split[-1]
-	onln_version = Net::HTTP.get(URI("https://gist.githubusercontent.com/sesshomariu/bea3f4403f0d4c671da0e7fed2f6a0dd/raw/69ac9704fc153aaf8d6b0a80fa0f328066b03270/libsessho.rb")).match(/META_VERSION \d+\.\d+/).to_s.split[-1]
-	p onln_version
-	this_version = File.read(__FILE__).match(/META_VERSION \d+\.\d+/).to_s.split[-1]
-	onln_version!=this_version ? puts("Update available.") : puts("No update available.")
+# META_VERSION 1.4
 
+def upd_check
+	require 'net/http'
+	require 'timeout'
+	begin
+		Timeout.timeout(2) { onln_content = Net::HTTP.get(URI("https://raw.githubusercontent.com/sesshomariu/libsessho/master/libsessho.rb")) }
+	rescue
+		return [false,""]
+	else
+		onln_version = onln_content.match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
+		this_version = File.read(__FILE__).match(/META_VERSION \d+\.\d+/).to_s.split[-1].to_f
+		upd_av = (onln_version>this_version)
+		return [upd_av, (upd_av ? onln_content : "")]
+	end
+end
+
+$0==__FILE__&&( # not imported
+	upd_av, onln_cont = upd_check
+	upd_av ? puts("Update available. Updating...") : puts("No update available(or could not check repository).")
+	upd_av&&File.write(__FILE__,onln_cont)
 	exit
 )
+
+_UPD_upd_av, _UPD_onln_cont = upd_check
+at_exit{_UPD_upd_av&&File.write(__FILE__,_UPD_onl_cont)}
+Signal.trap("INT"){exit} # ensure proper exit
+
 
 module Libsessho # error module / api module / dunno
 	class StringNotDivideableError<StandardError;end
 end
 
-class String	
+def warning_msg(msg)
+	puts "\e[31m#{msg}\e[39m"
+end
+
+class String
 	def splitAt(pos)
 		raise ArgumentError,"Index out of range" if pos>=self.length
 		p2 = self.split("")
