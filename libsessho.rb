@@ -1,8 +1,17 @@
-# META_VERSION 1.4
+# META_VERSION 1.5
+
+=begin
+class Version
+	def initialize(_1,_2=0,_3=0,_4=0)
+		@verstr = [_1,_2,_3,_4].map(&:to_s)
+	end
+end
+=end
 
 def upd_check
 	require 'net/http'
 	require 'timeout'
+	onln_content = nil
 	begin
 		Timeout.timeout(2) { onln_content = Net::HTTP.get(URI("https://raw.githubusercontent.com/sesshomariu/libsessho/master/libsessho.rb")) }
 	rescue
