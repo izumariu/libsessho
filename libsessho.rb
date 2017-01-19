@@ -1,12 +1,4 @@
-# META_VERSION 1.5
-
-=begin
-class Version
-	def initialize(_1,_2=0,_3=0,_4=0)
-		@verstr = [_1,_2,_3,_4].map(&:to_s)
-	end
-end
-=end
+# META_VERSION 1.6
 
 def upd_check
 	require 'net/http'
@@ -113,3 +105,21 @@ def localIP
 	require 'socket'
 	Socket.ip_address_list.map{|i|i.inspect.split(" ")[-1].split(">")[0]}.select{|i|i.match(/^\d{,3}\.\d{,3}\.\d{,3}.\d{,3}$/)}.select{|i|i!="127.0.0.1"}[0]
 end
+
+###############################################################################################
+
+$0!=__FILE__&&puts %Q(\
+==LIBSESSHO MESSAGE==
+Dear maintainer,
+
+I have to apologize for interrupting you. I know that this
+can be very annoying. The point is that your source of
+this library is GitHub, where I discontinued the development
+of this file. Now, it is hosted at rubygems.org and you can
+install it with `(sudo) gem install libsessho`. Please delete
+this file here and replace `load 'libsessho.rb'` with
+`require 'libsessho'`. Thank you. Sorry again for interrupting
+your work.
+== END OF MESSAGE ==
+#SLEEPING FOR 15 SECONDS#
+);sleep 15)
